@@ -1,41 +1,40 @@
 package com.example.demo.service;
 
-import java.util.HashMap;
-
-import java.util.Map;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.model.userModel;
+import com.example.demo.repo.UserRepo;
+
 
 @Service
 public class UserService {
-    private Map<Long, userModel> users = new HashMap<>();
-    private long nextId = 1;
+    private UserRepo userRepository;
+
+    @Autowired
+    public UserService(UserRepo userRepository) {
+        this.userRepository = userRepository;
+    }
 
     public userModel addUser(userModel user) {
-        user.setId(nextId);
-        users.put(nextId, user);
-        nextId++;
-        return user;
+        return userRepository.save(user);
     }
 
     public userModel getUserById(Long id) {
-        return users.get(id);
+        return userRepository.findById(id).orElse(null);
     }
 
     public userModel updateUser(Long id, userModel user2) {
-        userModel user = users.get(id);
+        userModel user = userRepository.findById(id).orElse(null);
         if (user != null) {
             user2.setId(id);
-            users.put(id, user2);
-            return user2;
+            return userRepository.save(user2);
         }
         return null;
     }
 
     public boolean deleteUser(Long id) {
-        userModel user = users.remove(id);
-        return user != null;
+        userRepository.deleteById(id);
+        return true;
     }
 }
